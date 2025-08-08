@@ -1,21 +1,42 @@
 import { useEffect, useState } from "react";
+import { ProjectCard } from "./ProjectCard";
 import { supabase } from "@/integrations/supabase/client";
-import { Project } from "@/types/project";
-import ProjectCard from "./ProjectCard";
-import { Skeleton } from "./ui/skeleton";
+import { Project } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const Projects = () => {
+export const Projects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProjects = async () => {
-      setLoading(true);
-      const { data, error } = await supabase.from("projects").select("*");
+      const { data, error } = await supabase
+        .from("projects")
+        .select(`
+          slug,
+          title,
+          description,
+          imageUrl:image_url,
+          tags,
+          liveUrl:live_url
+        `);
+
       if (error) {
         console.error("Error fetching projects:", error);
       } else {
-        setProjects(data);
+        // The data from supabase needs to be mapped to the Project interface
+        const formattedData = data.map(p => ({
+            ...p,
+            detail: { // detail is not fetched here, but the type requires it
+                heroImage: '',
+                subtitle: '',
+                overview: '',
+                role: '',
+                tools: [],
+                content: []
+            }
+        })) as Project[];
+        setProjects(formattedData);
       }
       setLoading(false);
     };
@@ -24,26 +45,25 @@ const Projects = () => {
   }, []);
 
   return (
-    <section id="projects" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-      <div className="container px-4 md:px-6">
-        <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-8">My Projects</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {loading && Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex flex-col space-y-3">
-              <Skeleton className="h-[225px] w-full rounded-xl" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-[250px]" />
-                <Skeleton className="h-4 w-[200px]" />
-              </div>
-            </div>
-          ))}
-          {!loading && projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
+    <section id="projects" className="py-20 bg-card">
+      <div className="max-w-screen-xl mx-auto px-10">
+        <h2 className="text-4xl font-bold text-white text-center mb-4">Selected Work</h2>
+        <p className="text-lg text-gray-300 text-center max-w-2xl mx-auto mb-12">
+          Here are a few projects I've worked on recently. Want to see more? Email me.
+        </p>
+        <div className="grid md:grid-cols-2 gap-8">
+          {loading ? (
+            <>
+              <Skeleton className="h-[400px] w-full" />
+              <Skeleton className="h-[400px] w-full" />
+            </>
+          ) : (
+            projects.map((project) => (
+              <ProjectCard key={project.slug} project={project} />
+            ))
+          )}
         </div>
       </div>
     </section>
   );
 };
-
-export default Projects;
