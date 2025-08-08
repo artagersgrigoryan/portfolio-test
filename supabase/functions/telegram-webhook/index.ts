@@ -10,12 +10,14 @@ serve(async (req) => {
     console.log("-----------------------------------------");
 
     if (payload.message && payload.message.reply_to_message && payload.message.text) {
-      const originalMessage = payload.message.reply_to_message.text;
+      const replyToMessage = payload.message.reply_to_message;
       const adminReply = payload.message.text;
 
+      // The original message text could be in 'text' or 'caption' (for media)
+      const originalMessage = replyToMessage.text || replyToMessage.caption || "";
       console.log("Original message text:", originalMessage);
 
-      // Use a more robust regex to find the UUID, ignoring formatting like backticks.
+      // Use a robust regex to find the UUID, ignoring formatting like backticks.
       const sessionIdMatch = originalMessage.match(/\b([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\b/i);
       
       if (sessionIdMatch && sessionIdMatch[1]) {
