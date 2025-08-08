@@ -1,12 +1,16 @@
 import { useParams, Link } from "react-router-dom";
-import { projects, ProjectContentBlock } from "@/data/projects";
+import { Project, ProjectContentBlock } from "@/types";
 import NotFound from "./NotFound";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProjectContent = ({ block }: { block: ProjectContentBlock }) => {
+  // This component remains the same
   switch (block.type) {
     case 'text':
       return (
@@ -48,7 +52,63 @@ const ProjectContent = ({ block }: { block: ProjectContentBlock }) => {
 
 const ProjectDetailPage = () => {
   const { slug } = useParams();
-  const project = projects.find((p) => p.slug === slug);
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    if (!slug) return;
+    const fetchProject = async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select(`
+          title,
+          slug,
+          detail
+        `)
+        .eq('slug', slug)
+        .single();
+
+      if (error || !data) {
+        console.error("Error fetching project:", error);
+        setNotFound(true);
+      } else {
+        // The data from supabase needs to be mapped to the Project interface
+        const formattedData = {
+            ...data,
+            description: '', // Not needed on this page
+            imageUrl: '', // Not needed on this page
+            tags: [], // Not needed on this page
+            liveUrl: '', // Not needed on this page
+        } as Project;
+        setProject(formattedData);
+      }
+      setLoading(false);
+    };
+
+    fetchProject();
+  }, [slug]);
+
+  if (notFound) {
+    return <NotFound />;
+  }
+
+  if (loading) {
+    return (
+        <div className="bg-background text-foreground">
+            <Header />
+            <main className="container mx-auto px-4 py-8 md:py-16">
+                <Skeleton className="h-8 w-48 mb-16" />
+                <header className="text-center mb-12 md:mb-16">
+                    <Skeleton className="h-16 w-3/4 mx-auto mb-4" />
+                    <Skeleton className="h-8 w-1/2 mx-auto" />
+                </header>
+                <Skeleton className="w-full h-96 rounded-xl shadow-2xl mb-12 md:mb-20" />
+            </main>
+            <Footer />
+        </div>
+    )
+  }
 
   if (!project || !project.detail) {
     return <NotFound />;
@@ -98,7 +158,7 @@ const ProjectDetailPage = () => {
           </div>
 
           <div className="max-w-5xl mx-auto">
-            {content.map((block, index) => (
+            {content && content.map((block, index) => (
               <ProjectContent key={index} block={block} />
             ))}
           </div>

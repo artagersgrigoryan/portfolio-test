@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Project } from "@/data/projects";
+import type { Project } from "@/types";
 
 interface ProjectCardProps {
   project: Project;
