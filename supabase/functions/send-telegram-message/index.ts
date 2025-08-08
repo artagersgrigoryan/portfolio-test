@@ -1,4 +1,5 @@
 // This edge function sends a message to a Telegram chat using a bot.
+// Redeploying to fetch the latest secrets.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
 
 const corsHeaders = {
