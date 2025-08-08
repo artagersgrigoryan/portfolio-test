@@ -4,21 +4,80 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input";
 import { MessageSquare, Send, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { showSuccess, showError } from "@/utils/toast";
+import { showError } from "@/utils/toast";
+import { v4 as uuidv4 } from 'uuid';
 
 interface ChatMessage {
-  sender: 'user' | 'bot';
-  text: string;
+  id?: number;
+  sender: 'user' | 'admin';
+  content: string;
 }
+
+const SESSION_ID_KEY = 'chat_session_id';
 
 export const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { sender: 'bot', text: "Hello! How can I help you today?" }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Initialize session
+  useEffect(() => {
+    let currentSessionId = localStorage.getItem(SESSION_ID_KEY);
+    if (!currentSessionId) {
+      currentSessionId = uuidv4();
+      localStorage.setItem(SESSION_ID_KEY, currentSessionId);
+      supabase.from('chat_sessions').insert({ id: currentSessionId }).then();
+    }
+    setSessionId(currentSessionId);
+  }, []);
+
+  // Fetch history and subscribe to realtime updates
+  useEffect(() => {
+    if (!sessionId) return;
+
+    const fetchHistory = async () => {
+      setIsHistoryLoading(true);
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select('id, sender, content')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        showError("Could not load chat history.");
+        console.error(error);
+      } else {
+        setMessages(data as ChatMessage[]);
+      }
+      setIsHistoryLoading(false);
+    };
+
+    fetchHistory();
+
+    const channel = supabase
+      .channel(`chat-session-${sessionId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `session_id=eq.${sessionId}`,
+        },
+        (payload) => {
+          setMessages((prevMessages) => [...prevMessages, payload.new as ChatMessage]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [sessionId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -26,29 +85,25 @@ export const ChatWidget = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading]);
+  }, [messages, isLoading, isHistoryLoading]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!message.trim() || !sessionId) return;
 
-    const userMessage: ChatMessage = { sender: 'user', text: message };
-    setMessages(prev => [...prev, userMessage]);
+    const tempMessage = message;
     setMessage("");
     setIsLoading(true);
 
     try {
       const { error } = await supabase.functions.invoke('send-chat-message', {
-        body: { message },
+        body: { message: tempMessage, sessionId },
       });
 
       if (error) throw new Error(error.message);
-
-      setMessages(prev => [...prev, { sender: 'bot', text: "Thanks for your message! I'll get back to you soon." }]);
-      showSuccess("Message sent!");
     } catch (err: any) {
       showError(err.message || "Failed to send message.");
-      setMessages(prev => prev.slice(0, -1)); // Remove user's message on failure
+      setMessage(tempMessage);
     } finally {
       setIsLoading(false);
     }
@@ -57,11 +112,7 @@ export const ChatWidget = () => {
   return (
     <>
       <div className="fixed bottom-8 right-8 z-50">
-        <Button
-          size="icon"
-          className="rounded-full h-16 w-16 shadow-lg"
-          onClick={() => setIsOpen(!isOpen)}
-        >
+        <Button size="icon" className="rounded-full h-16 w-16 shadow-lg" onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X className="h-8 w-8" /> : <MessageSquare className="h-8 w-8" />}
         </Button>
       </div>
@@ -75,32 +126,28 @@ export const ChatWidget = () => {
             </Button>
           </CardHeader>
           <CardContent className="flex-grow p-4 overflow-y-auto space-y-4">
-            {messages.map((msg, index) => (
-              <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] p-2 rounded-lg ${msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                  {msg.text}
-                </div>
+            {isHistoryLoading ? (
+              <div className="flex justify-center items-center h-full">
+                <Loader2 className="h-6 w-6 animate-spin" />
               </div>
-            ))}
-             {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-muted p-2 rounded-lg">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                </div>
-              </div>
+            ) : (
+              <>
+                {messages.map((msg, index) => (
+                  <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] p-2 rounded-lg ${msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                      {msg.content}
+                    </div>
+                  </div>
+                ))}
+              </>
             )}
             <div ref={messagesEndRef} />
           </CardContent>
           <CardFooter className="p-4 border-t">
             <form onSubmit={handleSendMessage} className="w-full flex items-center gap-2">
-              <Input
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Type a message..."
-                disabled={isLoading}
-              />
+              <Input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type a message..." disabled={isLoading} />
               <Button type="submit" size="icon" disabled={isLoading}>
-                <Send className="h-4 w-4" />
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
             </form>
           </CardFooter>
