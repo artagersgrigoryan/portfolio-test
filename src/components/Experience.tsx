@@ -21,8 +21,8 @@ const experienceData = [
 
 export const Experience = () => {
   return (
-    <section id="experience" className="py-20 px-4 md:px-8 lg:px-16 bg-card">
-      <div className="container mx-auto">
+    <section id="experience" className="py-20 bg-card">
+      <div className="max-w-screen-xl mx-auto px-10">
         <h2 className="text-4xl font-bold text-white text-center mb-12">Work Experience</h2>
         <div className="max-w-3xl mx-auto space-y-8">
           {experienceData.map((item, index) => (

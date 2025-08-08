@@ -92,7 +92,7 @@ const AddProjectPage = () => {
   return (
     <div className="bg-background text-foreground min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow max-w-screen-xl mx-auto px-10 py-8">
         <h1 className="text-4xl font-bold text-white mb-8">Add New Project</h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-2xl mx-auto">

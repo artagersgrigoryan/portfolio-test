@@ -15,8 +15,8 @@ export const Header = () => {
   };
 
   return (
-    <header className="py-6 px-4 md:px-8 lg:px-16 bg-background/80 sticky top-0 z-50 backdrop-blur-sm border-b border-border">
-      <div className="container mx-auto flex justify-between items-center">
+    <header className="py-6 px-10 bg-background/80 sticky top-0 z-50 backdrop-blur-sm border-b border-border">
+      <div className="flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold text-white">
           Artagers Grigoryan
         </Link>

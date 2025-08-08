@@ -97,7 +97,7 @@ const ProjectDetailPage = () => {
     return (
         <div className="bg-background text-foreground">
             <Header />
-            <main className="container mx-auto px-4 py-8 md:py-16">
+            <main className="max-w-screen-xl mx-auto px-10 py-8 md:py-16">
                 <Skeleton className="h-8 w-48 mb-16" />
                 <header className="text-center mb-12 md:mb-16">
                     <Skeleton className="h-16 w-3/4 mx-auto mb-4" />
@@ -120,7 +120,7 @@ const ProjectDetailPage = () => {
   return (
     <div className="bg-background text-foreground">
       <Header />
-      <main className="container mx-auto px-4 py-8 md:py-16">
+      <main className="max-w-screen-xl mx-auto px-10 py-8 md:py-16">
         <div className="mb-8">
             <Link to="/projects" className="inline-flex items-center text-primary hover:underline">
                 <ArrowLeft className="mr-2 h-4 w-4" />

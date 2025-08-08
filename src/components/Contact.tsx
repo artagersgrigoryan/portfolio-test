@@ -3,8 +3,8 @@ import { Dribbble, Github, Linkedin, Mail, Phone } from "lucide-react";
 
 export const Contact = () => {
   return (
-    <section id="contact" className="py-20 px-4 md:px-8 lg:px-16 bg-card">
-      <div className="container mx-auto text-center">
+    <section id="contact" className="py-20 bg-card">
+      <div className="max-w-screen-xl mx-auto px-10 text-center">
         <h2 className="text-4xl font-bold text-white mb-4">Let's build something great together</h2>
         <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
           Have a project in mind? I'm currently available for freelance work. Let's talk.

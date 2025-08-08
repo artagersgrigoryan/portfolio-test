@@ -8,8 +8,8 @@ const skills = {
 
 export const About = () => {
   return (
-    <section id="about" className="py-20 px-4 md:px-8 lg:px-16">
-      <div className="container mx-auto">
+    <section id="about" className="py-20">
+      <div className="max-w-screen-xl mx-auto px-10">
         <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">About Me</h2>
             <p className="text-lg text-gray-300 max-w-3xl mx-auto">

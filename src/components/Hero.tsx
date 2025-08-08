@@ -39,7 +39,7 @@ const buttonVariants = {
 export const Hero = () => {
   return (
     <section 
-      className="relative min-h-[calc(100vh-89px)] flex items-center justify-start text-left px-4 md:px-8 lg:px-16 bg-cover bg-center"
+      className="relative min-h-[calc(100vh-89px)] flex items-center justify-start text-left px-10 bg-cover bg-center"
       style={{ backgroundImage: "url('/images/profile.jpg')" }}
     >
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-black/60 to-transparent z-10"></div>
