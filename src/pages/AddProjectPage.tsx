@@ -18,6 +18,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "@/utils/toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 const projectSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
@@ -36,6 +39,7 @@ const projectSchema = z.object({
 const AddProjectPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<z.infer<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
@@ -53,11 +57,23 @@ const AddProjectPage = () => {
     },
   });
 
+  const handleGenerateSlug = () => {
+    const title = form.getValues("title");
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+    form.setValue("slug", slug, { shouldValidate: true });
+  };
+
   async function onSubmit(values: z.infer<typeof projectSchema>) {
     if (!user) {
       showError("You must be logged in to add a project.");
       return;
     }
+    setIsSubmitting(true);
 
     const { imageUrl, liveUrl, tags, tools, heroImage, subtitle, overview, role, ...projectCore } = values;
     const tagsArray = tags.split(',').map(tag => tag.trim());
@@ -76,7 +92,7 @@ const AddProjectPage = () => {
           overview: overview,
           role: role,
           tools: toolsArray,
-          content: [], // For now, content will be empty. A more complex form is needed for this.
+          content: [],
         },
       },
     ]);
@@ -87,160 +103,188 @@ const AddProjectPage = () => {
       showSuccess("Project added successfully!");
       navigate("/projects");
     }
+    setIsSubmitting(false);
   }
 
   return (
     <div className="bg-background text-foreground min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow max-w-screen-xl mx-auto px-10 py-8">
+      <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-white mb-8">Add New Project</h1>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-2xl mx-auto">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Project Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="E-commerce Redesign" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="slug"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Slug</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e-commerce-redesign" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Short Description</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="A complete overhaul of a fashion e-commerce platform..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Card Image URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://images.unsplash.com/..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="liveUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Live Project URL (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="tags"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tags (comma-separated)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="UX Research, UI Design" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <h2 className="text-2xl font-bold text-white pt-4 border-t border-border">Project Detail Page Content</h2>
-            <FormField
-              control={form.control}
-              name="heroImage"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Hero Image URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://images.unsplash.com/..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="subtitle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subtitle</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Reimagining the online shopping experience..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="overview"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Project Overview</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="The goal of this project was to..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Your Role</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Lead UX/UI Designer" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="tools"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tools Used (comma-separated)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Figma, Adobe XD" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit">Add Project</Button>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Core Information</CardTitle>
+                    <CardDescription>This information will be displayed on the project card.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Project Title</FormLabel>
+                          <FormControl><Input placeholder="E-commerce Redesign" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="slug"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Slug</FormLabel>
+                          <div className="flex items-center gap-2">
+                            <FormControl><Input placeholder="e-commerce-redesign" {...field} /></FormControl>
+                            <Button type="button" variant="outline" onClick={handleGenerateSlug}>Generate</Button>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Short Description</FormLabel>
+                          <FormControl><Textarea placeholder="A complete overhaul of a fashion e-commerce platform..." {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="tags"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tags (comma-separated)</FormLabel>
+                          <FormControl><Input placeholder="UX Research, UI Design" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Project Detail Page</CardTitle>
+                    <CardDescription>This content will appear on the dedicated project page.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="subtitle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Subtitle</FormLabel>
+                          <FormControl><Input placeholder="Reimagining the online shopping experience..." {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="overview"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Project Overview</FormLabel>
+                          <FormControl><Textarea placeholder="The goal of this project was to..." {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Your Role</FormLabel>
+                          <FormControl><Input placeholder="Lead UX/UI Designer" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="tools"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tools Used (comma-separated)</FormLabel>
+                          <FormControl><Input placeholder="Figma, Adobe XD" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="lg:col-span-1 space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Assets & Links</CardTitle>
+                    <CardDescription>URLs for images and the live project.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="imageUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Card Image URL</FormLabel>
+                          <FormControl><Input placeholder="https://images.unsplash.com/..." {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="heroImage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Hero Image URL</FormLabel>
+                          <FormControl><Input placeholder="https://images.unsplash.com/..." {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="liveUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Live Project URL (Optional)</FormLabel>
+                          <FormControl><Input placeholder="https://example.com" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Publish</CardTitle>
+                    <CardDescription>Review your changes and submit.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        "Add Project"
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </form>
         </Form>
       </main>
