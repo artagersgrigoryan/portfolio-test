@@ -3,6 +3,7 @@ import dyadComponentTagger from "@dyad-sh/react-vite-component-tagger";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
+// Forcing a rebuild to try and resolve DNS issues.
 export default defineConfig(() => ({
   server: {
     host: "::",
