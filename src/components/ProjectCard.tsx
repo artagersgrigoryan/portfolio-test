@@ -1,14 +1,24 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Edit, ExternalLink } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import type { Project } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "./ui/button";
 
 interface ProjectCardProps {
   project: Project;
 }
 
 export const ProjectCard = ({ project }: ProjectCardProps) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(`/edit-project/${project.slug}`);
+  };
+
   return (
     <Link to={`/project/${project.slug}`} className="block group">
       <Card className="overflow-hidden border-border hover:border-primary transition-all duration-300 h-full bg-card flex flex-col">
@@ -32,19 +42,24 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
             ))}
           </div>
         </CardContent>
-        {project.liveUrl && (
-          <CardFooter className="p-6 pt-0">
-            <div
-              onClick={(e) => {
-                e.preventDefault();
-                window.open(project.liveUrl, '_blank', 'noopener,noreferrer');
-              }}
-              className="text-primary hover:underline flex items-center font-semibold cursor-pointer z-10 relative"
+        <CardFooter className="p-6 pt-0 flex justify-between items-center">
+          {project.liveUrl ? (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-primary hover:underline flex items-center font-semibold z-10"
             >
               View Live Project <ExternalLink className="ml-2 h-4 w-4" />
-            </div>
-          </CardFooter>
-        )}
+            </a>
+          ) : <div />}
+          {user && (
+            <Button variant="secondary" size="sm" onClick={handleEditClick}>
+              <Edit className="mr-2 h-4 w-4" /> Edit
+            </Button>
+          )}
+        </CardFooter>
       </Card>
     </Link>
   );

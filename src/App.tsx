@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import { AuthProvider } from "./contexts/AuthContext";
 import AddProjectPage from "./pages/AddProjectPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import EditProjectPage from "./pages/EditProjectPage";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AddProjectPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/edit-project/:slug" 
+              element={
+                <ProtectedRoute>
+                  <EditProjectPage />
                 </ProtectedRoute>
               } 
             />

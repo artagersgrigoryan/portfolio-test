@@ -4,10 +4,12 @@ import NotFound from "./NotFound";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Edit } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 const ProjectContent = ({ block }: { block: ProjectContentBlock }) => {
   // This component remains the same
@@ -52,6 +54,7 @@ const ProjectContent = ({ block }: { block: ProjectContentBlock }) => {
 
 const ProjectDetailPage = () => {
   const { slug } = useParams();
+  const { user } = useAuth();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -121,11 +124,19 @@ const ProjectDetailPage = () => {
     <div className="bg-background text-foreground">
       <Header />
       <main className="max-w-screen-xl mx-auto px-10 py-8 md:py-16">
-        <div className="mb-8">
+        <div className="mb-8 flex justify-between items-center">
             <Link to="/projects" className="inline-flex items-center text-primary hover:underline">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Projects
             </Link>
+            {user && (
+              <Button asChild>
+                <Link to={`/edit-project/${slug}`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Project
+                </Link>
+              </Button>
+            )}
         </div>
 
         <article>
