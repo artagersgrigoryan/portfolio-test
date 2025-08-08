@@ -4,18 +4,39 @@ import { Menu, LogOut, PlusCircle, LogIn } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect, useRef } from "react";
 
 export const Header = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/');
   };
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setIsVisible(false); // Hide header
+      } else {
+        setIsVisible(true); // Show header
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <header className="py-6 px-10 bg-background/80 sticky top-0 z-50 backdrop-blur-sm border-b border-border">
+    <header className={`py-6 px-10 bg-background/80 sticky top-0 z-50 backdrop-blur-sm border-b border-border transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className="flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold text-white">
           Artagers Grigoryan
