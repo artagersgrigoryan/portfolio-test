@@ -6,11 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const escapeMarkdown = (str: string) => {
-  if (!str) return '';
-  return str.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-}
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -26,38 +21,19 @@ serve(async (req) => {
       })
     }
 
-    // When the server writes to the database, it does so silently by default.
-    // We need to explicitly tell it to broadcast this change so the chat
-    // widget can receive the update via its live subscription.
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      {
-        global: {
-          headers: {
-            // This header forces the broadcast.
-            'X-Supabase-Client-Info': 'supabase-js/2.54.0'
-          }
-        }
-      }
+      { global: { headers: { 'X-Supabase-Client-Info': 'supabase-js/2.54.0' } } }
     )
 
-    // Insert the user's message and get its ID
-    const { data: messageData, error: insertError } = await supabaseAdmin
+    await supabaseAdmin
       .from('chat_messages')
-      .insert({ session_id: sessionId, sender: 'user', content: message })
-      .select('id')
-      .single();
-
-    if (insertError) {
-      console.error('DB Insert Error:', insertError);
-      throw new Error(`Database error: ${insertError.message}`);
-    }
-
-    const userMessageId = messageData.id;
+      .insert({ session_id: sessionId, sender: 'user', content: message });
 
     const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
     const chatId = Deno.env.get('TELEGRAM_CHAT_ID')
+    const webAppUrl = `https://goicesirlbdgjspjpcin.dyad.sh/telegram-chat-dashboard#${sessionId}`
 
     if (!botToken || !chatId) {
       console.error("Telegram secrets are not set.");
@@ -67,37 +43,22 @@ serve(async (req) => {
       })
     }
 
-    const escapedMessage = escapeMarkdown(message);
-    const text = `*New Chat Message* 💬\n\n*From Session:* \`${sessionId}\`\n\n*Message:*\n${escapedMessage}`;
+    const text = `You have a new chat message!\n\n> _${message.substring(0, 80)}..._`;
 
-    const telegramResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: chatId,
         text: text,
-        parse_mode: 'MarkdownV2',
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: 'Open Chat Dashboard', web_app: { url: webAppUrl } }]
+          ]
+        }
       }),
     })
-
-    if (!telegramResponse.ok) {
-      const errorData = await telegramResponse.json();
-      console.error('Telegram API Error:', errorData);
-    } else {
-      const telegramResult = await telegramResponse.json();
-      if (telegramResult.ok && telegramResult.result.message_id) {
-        const telegramMessageId = telegramResult.result.message_id;
-        
-        const { error: updateError } = await supabaseAdmin
-          .from('chat_messages')
-          .update({ telegram_message_id: telegramMessageId })
-          .eq('id', userMessageId);
-
-        if (updateError) {
-          console.error('DB Update Error:', updateError);
-        }
-      }
-    }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -14,8 +14,20 @@ const TelegramChatDashboard = () => {
     script.async = true;
     document.body.appendChild(script);
 
+    // Read session ID from URL hash on load and on change
+    const handleHashChange = () => {
+      const hash = window.location.hash.substring(1);
+      if (hash) {
+        setSelectedSessionId(hash);
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange, false);
+    handleHashChange(); // Check hash on initial load
+
     return () => {
       document.body.removeChild(script);
+      window.removeEventListener('hashchange', handleHashChange, false);
     };
   }, []);
 
