@@ -4,11 +4,11 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input";
 import { MessageSquare, Send, X, Loader2, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { showError, showSuccess } from "@/utils/toast";
+import { showError } from "@/utils/toast";
 import { v4 as uuidv4 } from 'uuid';
 
 interface ChatMessage {
-  id?: number;
+  id: number;
   sender: 'user' | 'admin';
   content: string;
 }
@@ -29,24 +29,18 @@ export const ChatWidget = () => {
     if (!currentSessionId) {
       currentSessionId = uuidv4();
       localStorage.setItem(SESSION_ID_KEY, currentSessionId);
-      console.log("Creating new chat session:", currentSessionId);
-      supabase.from('chat_sessions').insert({ id: currentSessionId }).then(({ error }) => {
-        if (error) console.error("Error creating chat session in DB:", error);
-      });
+      supabase.from('chat_sessions').insert({ id: currentSessionId }).then();
     }
     setSessionId(currentSessionId);
-    setMessages([]); // Clear messages on session init
+    setMessages([]);
   };
 
-  // Initialize session
   useEffect(() => {
     initializeSession();
   }, []);
 
-  // Fetch history and subscribe to realtime updates
   useEffect(() => {
     if (!sessionId) return;
-    console.log(`ChatWidget: useEffect triggered for session ID: ${sessionId}`);
 
     const fetchHistory = async () => {
       setIsHistoryLoading(true);
@@ -58,9 +52,7 @@ export const ChatWidget = () => {
 
       if (error) {
         showError("Could not load chat history.");
-        console.error("Error fetching chat history:", error);
-      } else {
-        console.log("Fetched chat history:", data);
+      } else if (data) {
         setMessages(data as ChatMessage[]);
       }
       setIsHistoryLoading(false);
@@ -79,31 +71,13 @@ export const ChatWidget = () => {
           filter: `session_id=eq.${sessionId}`,
         },
         (payload) => {
-          console.log("Realtime event received:", payload);
           const newMessage = payload.new as ChatMessage;
-          if (newMessage.sender === 'admin') {
-            showSuccess("Admin reply received by client!");
-          }
           setMessages((prevMessages) => [...prevMessages, newMessage]);
         }
       )
-      .subscribe((status, err) => {
-        console.log(`Subscription status: ${status}`);
-        if (status === 'SUBSCRIBED') {
-          console.log(`Successfully subscribed to channel: chat-session-${sessionId}`);
-        }
-        if (status === 'CHANNEL_ERROR') {
-          console.error('Channel subscription error:', err);
-          showError(`Chat connection error: ${err?.message}`);
-        }
-        if (status === 'TIMED_OUT') {
-          console.error('Channel subscription timed out.');
-          showError('Chat connection timed out.');
-        }
-      });
+      .subscribe();
 
     return () => {
-      console.log(`Unsubscribing from channel: chat-session-${sessionId}`);
       supabase.removeChannel(channel);
     };
   }, [sessionId]);
@@ -114,7 +88,7 @@ export const ChatWidget = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading, isHistoryLoading]);
+  }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,8 +145,8 @@ export const ChatWidget = () => {
               </div>
             ) : (
               <>
-                {messages.map((msg, index) => (
-                  <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                {messages.map((msg) => (
+                  <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] p-2 rounded-lg ${msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                       {msg.content}
                     </div>
