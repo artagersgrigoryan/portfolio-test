@@ -14,6 +14,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import AddProjectPage from "./pages/AddProjectPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditProjectPage from "./pages/EditProjectPage";
+import MainLayout from "./components/MainLayout";
 
 const queryClient = new QueryClient();
 
@@ -25,29 +26,32 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/projects" element={<ProjectsPage />} />
-            <Route path="/project/:slug" element={<ProjectDetailPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Index />} />
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/project/:slug" element={<ProjectDetailPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route 
+                path="/add-project" 
+                element={
+                  <ProtectedRoute>
+                    <AddProjectPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/edit-project/:slug" 
+                element={
+                  <ProtectedRoute>
+                    <EditProjectPage />
+                  </ProtectedRoute>
+                } 
+              />
+            </Route>
+            
+            {/* Routes without the main layout */}
             <Route path="/login" element={<Login />} />
-            <Route 
-              path="/add-project" 
-              element={
-                <ProtectedRoute>
-                  <AddProjectPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/edit-project/:slug" 
-              element={
-                <ProtectedRoute>
-                  <EditProjectPage />
-                </ProtectedRoute>
-              } 
-            />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
