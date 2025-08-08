@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input";
 import { MessageSquare, Send, X, Loader2, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { showError } from "@/utils/toast";
+import { showError, showSuccess } from "@/utils/toast";
 import { v4 as uuidv4 } from 'uuid';
 
 interface ChatMessage {
@@ -74,7 +74,12 @@ export const ChatWidget = () => {
           filter: `session_id=eq.${sessionId}`,
         },
         (payload) => {
-          setMessages((prevMessages) => [...prevMessages, payload.new as ChatMessage]);
+          const newMessage = payload.new as ChatMessage;
+          // Diagnostic toast to confirm receipt
+          if (newMessage.sender === 'admin') {
+            showSuccess("Received admin reply!");
+          }
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
         }
       )
       .subscribe();
