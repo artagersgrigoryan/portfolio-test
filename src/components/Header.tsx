@@ -11,15 +11,15 @@ export const Header = () => {
           Jane Doe
         </Link>
         <nav className="hidden md:flex items-center space-x-8">
-          <a href="#projects" className="text-gray-300 hover:text-primary transition-colors">
+          <Link to="/projects" className="text-gray-300 hover:text-primary transition-colors">
             Projects
-          </a>
-          <a href="#about" className="text-gray-300 hover:text-primary transition-colors">
+          </Link>
+          <Link to="/about" className="text-gray-300 hover:text-primary transition-colors">
             About
-          </a>
-          <a href="#contact" className="text-gray-300 hover:text-primary transition-colors">
+          </Link>
+          <Link to="/contact" className="text-gray-300 hover:text-primary transition-colors">
             Contact
-          </a>
+          </Link>
         </nav>
         <div className="hidden md:block">
             <Button asChild>
@@ -35,9 +35,9 @@ export const Header = () => {
             </SheetTrigger>
             <SheetContent side="right">
               <nav className="flex flex-col space-y-6 mt-12 text-lg">
-                <a href="#projects" className="text-gray-300 hover:text-primary transition-colors">Projects</a>
-                <a href="#about" className="text-gray-300 hover:text-primary transition-colors">About</a>
-                <a href="#contact" className="text-gray-300 hover:text-primary transition-colors">Contact</a>
+                <Link to="/projects" className="text-gray-300 hover:text-primary transition-colors">Projects</Link>
+                <Link to="/about" className="text-gray-300 hover:text-primary transition-colors">About</Link>
+                <Link to="/contact" className="text-gray-300 hover:text-primary transition-colors">Contact</Link>
                  <Button asChild className="mt-4">
                     <a href="mailto:hello@janedoe.com">Get in Touch</a>
                 </Button>
