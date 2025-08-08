@@ -29,7 +29,10 @@ export const ChatWidget = () => {
     if (!currentSessionId) {
       currentSessionId = uuidv4();
       localStorage.setItem(SESSION_ID_KEY, currentSessionId);
-      supabase.from('chat_sessions').insert({ id: currentSessionId }).then();
+      console.log("Creating new chat session:", currentSessionId);
+      supabase.from('chat_sessions').insert({ id: currentSessionId }).then(({ error }) => {
+        if (error) console.error("Error creating chat session in DB:", error);
+      });
     }
     setSessionId(currentSessionId);
     setMessages([]); // Clear messages on session init
@@ -43,6 +46,7 @@ export const ChatWidget = () => {
   // Fetch history and subscribe to realtime updates
   useEffect(() => {
     if (!sessionId) return;
+    console.log(`ChatWidget: useEffect triggered for session ID: ${sessionId}`);
 
     const fetchHistory = async () => {
       setIsHistoryLoading(true);
@@ -54,8 +58,9 @@ export const ChatWidget = () => {
 
       if (error) {
         showError("Could not load chat history.");
-        console.error(error);
+        console.error("Error fetching chat history:", error);
       } else {
+        console.log("Fetched chat history:", data);
         setMessages(data as ChatMessage[]);
       }
       setIsHistoryLoading(false);
@@ -74,17 +79,31 @@ export const ChatWidget = () => {
           filter: `session_id=eq.${sessionId}`,
         },
         (payload) => {
+          console.log("Realtime event received:", payload);
           const newMessage = payload.new as ChatMessage;
-          // Diagnostic toast to confirm receipt
           if (newMessage.sender === 'admin') {
-            showSuccess("Received admin reply!");
+            showSuccess("Admin reply received by client!");
           }
           setMessages((prevMessages) => [...prevMessages, newMessage]);
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log(`Subscription status: ${status}`);
+        if (status === 'SUBSCRIBED') {
+          console.log(`Successfully subscribed to channel: chat-session-${sessionId}`);
+        }
+        if (status === 'CHANNEL_ERROR') {
+          console.error('Channel subscription error:', err);
+          showError(`Chat connection error: ${err?.message}`);
+        }
+        if (status === 'TIMED_OUT') {
+          console.error('Channel subscription timed out.');
+          showError('Chat connection timed out.');
+        }
+      });
 
     return () => {
+      console.log(`Unsubscribing from channel: chat-session-${sessionId}`);
       supabase.removeChannel(channel);
     };
   }, [sessionId]);
