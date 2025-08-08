@@ -31,6 +31,16 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    // First, ensure the session exists to prevent foreign key violations.
+    const { error: sessionError } = await supabaseAdmin
+      .from('chat_sessions')
+      .upsert({ id: sessionId });
+
+    if (sessionError) {
+      console.error('DB Session Upsert Error:', sessionError);
+      throw new Error(`Database error: ${sessionError.message}`);
+    }
+
     const { error: insertError } = await supabaseAdmin
       .from('chat_messages')
       .insert({ session_id: sessionId, sender: 'user', content: message })

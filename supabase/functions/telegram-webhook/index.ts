@@ -4,15 +4,24 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
 serve(async (req) => {
   try {
     const payload = await req.json()
+    
+    // Log the entire payload for debugging
+    console.log("--- TELEGRAM WEBHOOK PAYLOAD RECEIVED ---");
+    console.log(JSON.stringify(payload, null, 2));
+    console.log("-----------------------------------------");
 
     if (payload.message && payload.message.reply_to_message && payload.message.text) {
       const originalMessage = payload.message.reply_to_message.text;
       const adminReply = payload.message.text;
 
+      // Log the text we're trying to parse
+      console.log("Original message text:", originalMessage);
+
       const sessionIdMatch = originalMessage.match(/From Session: `([a-fA-F0-9-]+)`/);
       
       if (sessionIdMatch && sessionIdMatch[1]) {
         const sessionId = sessionIdMatch[1];
+        console.log("Session ID found:", sessionId);
 
         const supabaseAdmin = createClient(
           Deno.env.get('SUPABASE_URL') ?? '',
@@ -25,9 +34,11 @@ serve(async (req) => {
 
         if (error) {
           console.error('DB Insert Error from Webhook:', error);
+        } else {
+          console.log("Successfully inserted admin reply for session:", sessionId);
         }
       } else {
-        console.log("Webhook received a reply, but couldn't find a session ID.");
+        console.log("Webhook received a reply, but couldn't find a session ID in the text.");
       }
     }
 
