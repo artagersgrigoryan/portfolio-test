@@ -6,17 +6,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
-const chatId = Deno.env.get('TELEGRAM_CHAT_ID')
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
-  if (!botToken || !chatId) {
-    console.error("Telegram secrets are not set in Supabase environment variables.");
-    return new Response(JSON.stringify({ error: 'Server configuration error.' }), {
+  const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
+  const chatId = Deno.env.get('TELEGRAM_CHAT_ID')
+
+  if (!botToken) {
+    console.error("TELEGRAM_BOT_TOKEN secret is not set in Supabase environment variables.");
+    return new Response(JSON.stringify({ error: 'Server configuration error: Bot token is missing.' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500,
+    })
+  }
+
+  if (!chatId) {
+    console.error("TELEGRAM_CHAT_ID secret is not set in Supabase environment variables.");
+    return new Response(JSON.stringify({ error: 'Server configuration error: Chat ID is missing.' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     })
