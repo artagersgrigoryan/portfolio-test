@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut, PlusCircle } from "lucide-react";
+import { Menu, LogOut, PlusCircle, LogIn } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,9 +46,17 @@ export const Header = () => {
               </Button>
             </>
           ) : (
-            <Button asChild>
-                <a href="mailto:hello@janedoe.com">Get in Touch</a>
-            </Button>
+            <>
+              <Button variant="outline" asChild>
+                <Link to="/login">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Login
+                </Link>
+              </Button>
+              <Button asChild>
+                  <a href="mailto:hello@janedoe.com">Get in Touch</a>
+              </Button>
+            </>
           )}
         </div>
         <div className="md:hidden">
@@ -66,12 +74,23 @@ export const Header = () => {
                 {user ? (
                   <>
                     <Link to="/add-project" className="text-gray-300 hover:text-primary transition-colors">Add Project</Link>
-                    <Button variant="outline" onClick={handleLogout} className="mt-4">Logout</Button>
+                    <Button variant="outline" onClick={handleLogout} className="mt-4">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </Button>
                   </>
                 ) : (
-                  <Button asChild className="mt-4">
-                      <a href="mailto:hello@janedoe.com">Get in Touch</a>
-                  </Button>
+                  <div className="flex flex-col space-y-4 mt-4">
+                    <Button variant="outline" asChild>
+                      <Link to="/login">
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Login
+                      </Link>
+                    </Button>
+                    <Button asChild>
+                        <a href="mailto:hello@janedoe.com">Get in Touch</a>
+                    </Button>
+                  </div>
                 )}
               </nav>
             </SheetContent>
