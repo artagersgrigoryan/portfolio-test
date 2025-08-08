@@ -13,12 +13,11 @@ serve(async (req) => {
       const replyToMessage = payload.message.reply_to_message;
       const adminReply = payload.message.text;
 
-      // The original message text could be in 'text' or 'caption' (for media)
       const originalMessage = replyToMessage.text || replyToMessage.caption || "";
       console.log("Original message text:", originalMessage);
 
-      // Use a robust regex to find the UUID, ignoring formatting like backticks.
-      const sessionIdMatch = originalMessage.match(/\b([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\b/i);
+      // Use a more general regex to find the UUID, without word boundaries.
+      const sessionIdMatch = originalMessage.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
       
       if (sessionIdMatch && sessionIdMatch[1]) {
         const sessionId = sessionIdMatch[1];
