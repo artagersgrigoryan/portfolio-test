@@ -60,7 +60,7 @@ export const Hero = () => {
           className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4"
           variants={itemVariants}
         >
-          Artag Ers
+          Artagers Grigoryan
           <br />
           <span className="text-primary">Digital Product Designer & Developer</span>
         </motion.h1>

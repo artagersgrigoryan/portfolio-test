@@ -1,21 +1,21 @@
 const experienceData = [
   {
-    company: "Dyad",
-    role: "Full-Stack Engineer",
-    period: "Jan 2023 - Present",
-    description: "Developing innovative web applications and contributing to a collaborative, fast-paced development environment."
+    company: "Digitain",
+    role: "Front-end Developer",
+    period: "Jun 2022 - Present",
+    description: "Developing and maintaining complex, high-performance user interfaces for sports betting and gaming platforms using modern web technologies."
   },
   {
-    company: "Figma",
-    role: "Designer & Developer Advocate (Contract)",
-    period: "Jun 2022 - Dec 2022",
-    description: "Bridged the gap between design and development communities, creating resources and advocating for best practices."
-  },
-  {
-    company: "Vercel",
-    role: "Freelance Developer",
+    company: "VOLO LLC",
+    role: "Front-end Developer",
     period: "Jan 2022 - May 2022",
-    description: "Built and deployed high-performance websites for clients using Next.js and Vercel's platform."
+    description: "Collaborated in an agile team to build and enhance client-side applications, focusing on code quality, performance, and user experience."
+  },
+  {
+    company: "ROBOCODE LLC",
+    role: "Front-end Developer",
+    period: "Sep 2021 - Dec 2021",
+    description: "Translated UI/UX design wireframes into actual code, producing visual elements of web applications and ensuring cross-browser compatibility."
   }
 ];
 

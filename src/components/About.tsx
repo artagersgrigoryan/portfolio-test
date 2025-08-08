@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 
 const skills = {
-  "Design": ["UI/UX Design", "Prototyping", "User Research", "Wireframing", "Design Systems"],
-  "Development": ["HTML", "CSS", "JavaScript", "TypeScript", "React", "Next.js", "Node.js", "Supabase"],
-  "Tools": ["Figma", "Sketch", "Adobe XD", "VS Code", "Git", "GitHub"]
+  "Design": ["UI/UX Design", "Responsive Design", "Prototyping", "User Research", "Wireframing", "Design Systems", "Human-Centered Design"],
+  "Development": ["HTML/CSS/Sass", "JavaScript (ES6+)", "TypeScript", "React/Redux", "Next.js", "Vue.js/Vuex", "Nuxt.js", "Node.js/Express", "REST APIs"],
+  "Tools & Platforms": ["Figma", "Adobe XD", "Git/GitHub", "Webpack", "Babel", "Jira", "VS Code", "Supabase", "Vercel"]
 };
 
 export const About = () => {

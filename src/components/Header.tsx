@@ -18,7 +18,7 @@ export const Header = () => {
     <header className="py-6 px-4 md:px-8 lg:px-16 bg-background/80 sticky top-0 z-50 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold text-white">
-          Artag Ers
+          Artagers Grigoryan
         </Link>
         <nav className="hidden md:flex items-center space-x-8">
           <Link to="/projects" className="text-gray-300 hover:text-primary transition-colors">
@@ -54,7 +54,7 @@ export const Header = () => {
                 </Link>
               </Button>
               <Button asChild>
-                  <a href="mailto:hello@artagers.com">Get in Touch</a>
+                  <a href="mailto:artagersgrigoryan@gmail.com">Get in Touch</a>
               </Button>
             </>
           )}
@@ -88,7 +88,7 @@ export const Header = () => {
                       </Link>
                     </Button>
                     <Button asChild>
-                        <a href="mailto:hello@artagers.com">Get in Touch</a>
+                        <a href="mailto:artagersgrigoryan@gmail.com">Get in Touch</a>
                     </Button>
                   </div>
                 )}
