@@ -59,17 +59,17 @@ const AddProjectPage = () => {
       return;
     }
 
-    const { tags, tools, heroImage, subtitle, overview, role, ...rest } = values;
+    const { imageUrl, liveUrl, tags, tools, heroImage, subtitle, overview, role, ...projectCore } = values;
     const tagsArray = tags.split(',').map(tag => tag.trim());
     const toolsArray = tools.split(',').map(tool => tool.trim());
 
     const { error } = await supabase.from("projects").insert([
       {
-        ...rest,
+        ...projectCore,
         user_id: user.id,
         tags: tagsArray,
-        image_url: values.imageUrl,
-        live_url: values.liveUrl,
+        image_url: imageUrl,
+        live_url: liveUrl,
         detail: {
           heroImage: heroImage,
           subtitle: subtitle,
