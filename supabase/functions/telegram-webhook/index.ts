@@ -9,36 +9,48 @@ serve(async (req) => {
     console.log(JSON.stringify(payload, null, 2));
     console.log("-----------------------------------------");
 
+    // Check for a message that is a reply to another message
     if (payload.message && payload.message.reply_to_message && payload.message.text) {
       const replyToMessage = payload.message.reply_to_message;
-      const adminReply = payload.message.text;
+      const adminReplyText = payload.message.text;
+      const originalTelegramMessageId = replyToMessage.message_id;
 
-      const originalMessage = replyToMessage.text || replyToMessage.caption || "";
-      console.log("Original message text:", originalMessage);
+      if (!originalTelegramMessageId) {
+        console.log("Webhook received a reply, but it's missing the original message_id.");
+        return new Response("OK", { status: 200 });
+      }
 
-      // Use a more general regex to find the UUID, without word boundaries.
-      const sessionIdMatch = originalMessage.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
-      
-      if (sessionIdMatch && sessionIdMatch[1]) {
-        const sessionId = sessionIdMatch[1];
-        console.log("Session ID found:", sessionId);
+      console.log("Replying to Telegram message ID:", originalTelegramMessageId);
 
-        const supabaseAdmin = createClient(
-          Deno.env.get('SUPABASE_URL') ?? '',
-          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-        )
+      const supabaseAdmin = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      )
 
-        const { error } = await supabaseAdmin
-          .from('chat_messages')
-          .insert({ session_id: sessionId, sender: 'admin', content: adminReply });
+      // Find the original message in our DB using the telegram_message_id
+      const { data: originalMessage, error: findError } = await supabaseAdmin
+        .from('chat_messages')
+        .select('session_id')
+        .eq('telegram_message_id', originalTelegramMessageId)
+        .single();
 
-        if (error) {
-          console.error('DB Insert Error from Webhook:', error);
-        } else {
-          console.log("Successfully inserted admin reply for session:", sessionId);
-        }
+      if (findError || !originalMessage) {
+        console.error('Could not find original message in DB for telegram_message_id:', originalTelegramMessageId, findError);
+        return new Response("OK", { status: 200 }); // Acknowledge webhook, but can't process
+      }
+
+      const { session_id: sessionId } = originalMessage;
+      console.log("Found session ID:", sessionId);
+
+      // Insert the admin's reply into the correct session
+      const { error: insertError } = await supabaseAdmin
+        .from('chat_messages')
+        .insert({ session_id: sessionId, sender: 'admin', content: adminReplyText });
+
+      if (insertError) {
+        console.error('DB Insert Error from Webhook:', insertError);
       } else {
-        console.log("Webhook received a reply, but couldn't find a session ID in the text.");
+        console.log("Successfully inserted admin reply for session:", sessionId);
       }
     }
 
@@ -46,6 +58,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Webhook Error:', error.message);
+    // Always return 200 to Telegram to prevent retries
     return new Response("Error processing webhook", { status: 200 });
   }
 })

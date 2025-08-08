@@ -31,24 +31,19 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // First, ensure the session exists to prevent foreign key violations.
-    const { error: sessionError } = await supabaseAdmin
-      .from('chat_sessions')
-      .upsert({ id: sessionId });
-
-    if (sessionError) {
-      console.error('DB Session Upsert Error:', sessionError);
-      throw new Error(`Database error: ${sessionError.message}`);
-    }
-
-    const { error: insertError } = await supabaseAdmin
+    // Insert the user's message and get its ID
+    const { data: messageData, error: insertError } = await supabaseAdmin
       .from('chat_messages')
       .insert({ session_id: sessionId, sender: 'user', content: message })
+      .select('id')
+      .single();
 
     if (insertError) {
       console.error('DB Insert Error:', insertError);
       throw new Error(`Database error: ${insertError.message}`);
     }
+
+    const userMessageId = messageData.id;
 
     const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
     const chatId = Deno.env.get('TELEGRAM_CHAT_ID')
@@ -62,9 +57,10 @@ serve(async (req) => {
     }
 
     const escapedMessage = escapeMarkdown(message);
+    // The text sent to Telegram still includes the session ID as a fallback/for context
     const text = `*New Chat Message* 💬\n\n*From Session:* \`${sessionId}\`\n\n*Message:*\n${escapedMessage}`;
 
-    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    const telegramResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -74,9 +70,26 @@ serve(async (req) => {
       }),
     })
 
-    if (!response.ok) {
-      const errorData = await response.json();
+    if (!telegramResponse.ok) {
+      const errorData = await telegramResponse.json();
       console.error('Telegram API Error:', errorData);
+      // Don't throw here, the message is already in the DB.
+    } else {
+      const telegramResult = await telegramResponse.json();
+      if (telegramResult.ok && telegramResult.result.message_id) {
+        const telegramMessageId = telegramResult.result.message_id;
+        
+        // Update the user's message row with the telegram_message_id
+        const { error: updateError } = await supabaseAdmin
+          .from('chat_messages')
+          .update({ telegram_message_id: telegramMessageId })
+          .eq('id', userMessageId);
+
+        if (updateError) {
+          console.error('DB Update Error:', updateError);
+          // Don't throw, not a critical failure for the user
+        }
+      }
     }
 
     return new Response(JSON.stringify({ success: true }), {
