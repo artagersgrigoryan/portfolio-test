@@ -15,6 +15,7 @@ import AddProjectPage from "./pages/AddProjectPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EditProjectPage from "./pages/EditProjectPage";
 import MainLayout from "./components/MainLayout";
+import TelegramChatDashboard from "./pages/TelegramChatDashboard";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
             
             {/* Routes without the main layout */}
             <Route path="/login" element={<Login />} />
+            <Route path="/telegram-chat-dashboard" element={<TelegramChatDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
