@@ -38,9 +38,20 @@ const buttonVariants = {
 
 export const Hero = () => {
   return (
-    <section className="min-h-[calc(100vh-89px)] flex items-center justify-center text-center px-4 overflow-hidden">
+    <section className="relative min-h-[calc(100vh-89px)] flex items-center justify-center text-center px-4 overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-full z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+          src="https://assets.mixkit.co/videos/preview/mixkit-red-particles-in-a-dark-fluid-34512-large.mp4"
+        />
+      </div>
+      <div className="absolute top-0 left-0 w-full h-full bg-black/70 z-10"></div>
       <motion.div
-        className="max-w-4xl mx-auto"
+        className="relative z-20 max-w-4xl mx-auto"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
