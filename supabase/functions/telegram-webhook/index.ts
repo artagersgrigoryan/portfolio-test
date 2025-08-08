@@ -5,7 +5,6 @@ serve(async (req) => {
   try {
     const payload = await req.json()
     
-    // Log the entire payload for debugging
     console.log("--- TELEGRAM WEBHOOK PAYLOAD RECEIVED ---");
     console.log(JSON.stringify(payload, null, 2));
     console.log("-----------------------------------------");
@@ -14,10 +13,10 @@ serve(async (req) => {
       const originalMessage = payload.message.reply_to_message.text;
       const adminReply = payload.message.text;
 
-      // Log the text we're trying to parse
       console.log("Original message text:", originalMessage);
 
-      const sessionIdMatch = originalMessage.match(/From Session: `([a-fA-F0-9-]+)`/);
+      // Use a more robust regex to find the UUID, ignoring formatting like backticks.
+      const sessionIdMatch = originalMessage.match(/\b([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\b/i);
       
       if (sessionIdMatch && sessionIdMatch[1]) {
         const sessionId = sessionIdMatch[1];
