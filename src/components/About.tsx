@@ -13,7 +13,7 @@ export const About = () => {
         <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">About Me</h2>
             <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-              I'm a self-taught digital product designer and developer based in Turkey. I am passionate about creating user-centered, delightful, and human experiences. I enjoy turning complex problems into simple, beautiful, and intuitive designs that are both functional and aesthetically pleasing.
+              I'm a self-taught digital product designer and developer based in Armenia. I am passionate about creating user-centered, delightful, and human experiences. I enjoy turning complex problems into simple, beautiful, and intuitive designs that are both functional and aesthetically pleasing.
             </p>
         </div>
         
