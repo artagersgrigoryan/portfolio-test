@@ -1,3 +1,4 @@
+// This edge function sends a message to a Telegram chat using a bot.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
 
 const corsHeaders = {
