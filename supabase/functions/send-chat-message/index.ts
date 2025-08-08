@@ -26,9 +26,20 @@ serve(async (req) => {
       })
     }
 
+    // When the server writes to the database, it does so silently by default.
+    // We need to explicitly tell it to broadcast this change so the chat
+    // widget can receive the update via its live subscription.
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            // This header forces the broadcast.
+            'X-Supabase-Client-Info': 'supabase-js/2.54.0'
+          }
+        }
+      }
     )
 
     // Insert the user's message and get its ID
@@ -57,7 +68,6 @@ serve(async (req) => {
     }
 
     const escapedMessage = escapeMarkdown(message);
-    // The text sent to Telegram still includes the session ID as a fallback/for context
     const text = `*New Chat Message* 💬\n\n*From Session:* \`${sessionId}\`\n\n*Message:*\n${escapedMessage}`;
 
     const telegramResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -73,13 +83,11 @@ serve(async (req) => {
     if (!telegramResponse.ok) {
       const errorData = await telegramResponse.json();
       console.error('Telegram API Error:', errorData);
-      // Don't throw here, the message is already in the DB.
     } else {
       const telegramResult = await telegramResponse.json();
       if (telegramResult.ok && telegramResult.result.message_id) {
         const telegramMessageId = telegramResult.result.message_id;
         
-        // Update the user's message row with the telegram_message_id
         const { error: updateError } = await supabaseAdmin
           .from('chat_messages')
           .update({ telegram_message_id: telegramMessageId })
@@ -87,7 +95,6 @@ serve(async (req) => {
 
         if (updateError) {
           console.error('DB Update Error:', updateError);
-          // Don't throw, not a critical failure for the user
         }
       }
     }
