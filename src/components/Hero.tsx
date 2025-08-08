@@ -38,63 +38,54 @@ const buttonVariants = {
 
 export const Hero = () => {
   return (
-    <section className="min-h-[calc(100vh-89px)] flex items-center py-20 px-4 md:px-8 lg:px-16">
-      <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+    <section 
+      className="relative min-h-[calc(100vh-89px)] flex items-center justify-center text-center px-4 bg-cover bg-center"
+      style={{ backgroundImage: "url('/images/profile.jpg')" }}
+    >
+      <div className="absolute top-0 left-0 w-full h-full bg-black/60 z-10"></div>
+      
+      <motion.div
+        className="relative z-20 max-w-4xl mx-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.h1
+          className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4"
+          variants={itemVariants}
+        >
+          Artagers Grigoryan
+          <br />
+          <span className="text-primary">Digital Product Designer & Developer</span>
+        </motion.h1>
+        <motion.p
+          className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8"
+          variants={itemVariants}
+        >
+          I design and code beautifully simple things, and I love what I do.
+        </motion.p>
         <motion.div
-          className="text-left"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+          className="flex justify-center gap-4"
+          variants={buttonVariants}
         >
-          <motion.h1
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4"
-            variants={itemVariants}
-          >
-            Artagers Grigoryan
-            <br />
-            <span className="text-primary">Digital Product Designer & Developer</span>
-          </motion.h1>
-          <motion.p
-            className="text-lg md:text-xl text-gray-300 max-w-xl mb-8"
-            variants={itemVariants}
-          >
-            I design and code beautifully simple things, and I love what I do.
-          </motion.p>
-          <motion.div
-            className="flex justify-start gap-4"
-            variants={buttonVariants}
-          >
-            <a href="#projects">
-              <Button size="lg">
-                View My Work
-                <motion.div
-                  animate={{ y: [0, 5, 0] }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    repeatType: "loop",
-                    ease: "easeInOut",
-                  }}
-                >
-                  <ArrowDown className="ml-2 h-5 w-5" />
-                </motion.div>
-              </Button>
-            </a>
-          </motion.div>
+          <a href="#projects">
+            <Button size="lg">
+              View My Work
+              <motion.div
+                animate={{ y: [0, 5, 0] }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  repeatType: "loop",
+                  ease: "easeInOut",
+                }}
+              >
+                <ArrowDown className="ml-2 h-5 w-5" />
+              </motion.div>
+            </Button>
+          </a>
         </motion.div>
-        <motion.div 
-          className="flex justify-center order-first md:order-last"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <img 
-            src="/images/profile.jpg" 
-            alt="Artagers Grigoryan" 
-            className="rounded-lg shadow-2xl w-full max-w-md object-cover"
-          />
-        </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 };
