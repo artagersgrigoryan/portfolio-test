@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send, X, Loader2 } from "lucide-react";
+import { MessageSquare, Send, X, Loader2, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { showError } from "@/utils/toast";
 import { v4 as uuidv4 } from 'uuid';
@@ -24,8 +24,7 @@ export const ChatWidget = () => {
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Initialize session
-  useEffect(() => {
+  const initializeSession = () => {
     let currentSessionId = localStorage.getItem(SESSION_ID_KEY);
     if (!currentSessionId) {
       currentSessionId = uuidv4();
@@ -33,6 +32,12 @@ export const ChatWidget = () => {
       supabase.from('chat_sessions').insert({ id: currentSessionId }).then();
     }
     setSessionId(currentSessionId);
+    setMessages([]); // Clear messages on session init
+  };
+
+  // Initialize session
+  useEffect(() => {
+    initializeSession();
   }, []);
 
   // Fetch history and subscribe to realtime updates
@@ -109,6 +114,11 @@ export const ChatWidget = () => {
     }
   };
 
+  const handleResetSession = () => {
+    localStorage.removeItem(SESSION_ID_KEY);
+    initializeSession();
+  };
+
   return (
     <>
       <div className="fixed bottom-8 right-8 z-50">
@@ -121,9 +131,14 @@ export const ChatWidget = () => {
         <Card className="fixed bottom-28 right-8 z-50 w-80 h-96 flex flex-col shadow-2xl animate-in fade-in-5 slide-in-from-bottom-2 duration-300">
           <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
             <h3 className="font-bold">Live Chat</h3>
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center">
+              <Button variant="ghost" size="icon" onClick={handleResetSession} title="Start New Conversation">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="flex-grow p-4 overflow-y-auto space-y-4">
             {isHistoryLoading ? (
