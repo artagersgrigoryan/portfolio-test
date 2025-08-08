@@ -1,44 +1,41 @@
-import { Award, Lightbulb, Users } from "lucide-react";
+import { Code, Lightbulb, Users } from "lucide-react";
 
 export const About = () => {
   return (
     <section id="about" className="py-20 px-4 md:px-8 lg:px-16">
-      <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center">
-        <div>
-          <h2 className="text-4xl font-bold text-white mb-4">About Me</h2>
-          <p className="text-gray-300 mb-4">
-            Hello! I'm Jane, a designer who loves to solve complex problems with clean, elegant solutions. With over 5 years of experience in the field, I've had the privilege of working on a diverse range of projects for clients across various industries.
-          </p>
-          <p className="text-gray-300">
-            My design philosophy is rooted in empathy. I believe that understanding the user's needs and motivations is the key to creating products that are not only beautiful but also truly useful and enjoyable. I'm proficient in the entire design process, from user research and wireframing to high-fidelity prototyping and user testing.
-          </p>
+      <div className="container mx-auto">
+        <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-white mb-4">What I Do</h2>
+            <p className="text-lg text-gray-300 max-w-3xl mx-auto">
+                As a digital product designer and developer, I focus on creating seamless and engaging user experiences from concept to deployment. My work combines thoughtful design with clean, efficient code.
+            </p>
         </div>
-        <div className="space-y-6">
-          <div className="flex items-start gap-4">
-            <div className="bg-primary/10 text-primary p-3 rounded-full">
-              <Users className="h-6 w-6" />
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="bg-primary/10 text-primary p-4 rounded-full">
+              <Lightbulb className="h-8 w-8" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">User-Centered Approach</h3>
-              <p className="text-gray-400">Every design decision is driven by user research and feedback to ensure the final product is intuitive and effective.</p>
+              <h3 className="text-xl font-bold text-white">Product Design</h3>
+              <p className="text-gray-400">Crafting intuitive interfaces and user flows that solve real problems.</p>
             </div>
           </div>
-          <div className="flex items-start gap-4">
-            <div className="bg-primary/10 text-primary p-3 rounded-full">
-              <Lightbulb className="h-6 w-6" />
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="bg-primary/10 text-primary p-4 rounded-full">
+              <Code className="h-8 w-8" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">Creative Problem Solving</h3>
-              <p className="text-gray-400">I thrive on tackling challenging problems and finding innovative solutions that balance user needs and business goals.</p>
+              <h3 className="text-xl font-bold text-white">Web Development</h3>
+              <p className="text-gray-400">Building responsive, high-performance websites and applications.</p>
             </div>
           </div>
-          <div className="flex items-start gap-4">
-            <div className="bg-primary/10 text-primary p-3 rounded-full">
-              <Award className="h-6 w-6" />
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="bg-primary/10 text-primary p-4 rounded-full">
+              <Users className="h-8 w-8" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">Commitment to Quality</h3>
-              <p className="text-gray-400">I am meticulous about details and committed to delivering pixel-perfect designs and polished user experiences.</p>
+              <h3 className="text-xl font-bold text-white">User-Centric Approach</h3>
+              <p className="text-gray-400">Putting the user at the heart of the design process to create products people love.</p>
             </div>
           </div>
         </div>

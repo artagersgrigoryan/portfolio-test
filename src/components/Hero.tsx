@@ -60,15 +60,15 @@ export const Hero = () => {
           className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4"
           variants={itemVariants}
         >
-          Crafting Digital Experiences that
+          Artag Ers
           <br />
-          <span className="text-primary">Inspire & Engage</span>
+          <span className="text-primary">Digital Product Designer & Developer</span>
         </motion.h1>
         <motion.p
           className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8"
           variants={itemVariants}
         >
-          I'm Jane Doe, a passionate UX/UI designer dedicated to creating intuitive, beautiful, and user-centered designs that solve real-world problems.
+          I design and code beautifully simple things, and I love what I do.
         </motion.p>
         <motion.div
           className="flex justify-center gap-4"
