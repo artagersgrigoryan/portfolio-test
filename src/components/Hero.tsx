@@ -1,26 +1,86 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.3,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      duration: 0.8,
+      ease: "easeOut",
+    },
+  },
+};
+
+const buttonVariants = {
+    hidden: { scale: 0.5, opacity: 0 },
+    visible: {
+        scale: 1,
+        opacity: 1,
+        transition: {
+            duration: 0.5,
+            ease: "easeOut",
+        },
+    }
+}
 
 export const Hero = () => {
   return (
-    <section className="min-h-[calc(100vh-89px)] flex items-center justify-center text-center px-4">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4">
+    <section className="min-h-[calc(100vh-89px)] flex items-center justify-center text-center px-4 overflow-hidden">
+      <motion.div
+        className="max-w-4xl mx-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.h1
+          className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4"
+          variants={itemVariants}
+        >
           Crafting Digital Experiences that
           <br />
           <span className="text-primary">Inspire & Engage</span>
-        </h1>
-        <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+        </motion.h1>
+        <motion.p
+          className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8"
+          variants={itemVariants}
+        >
           I'm Jane Doe, a passionate UX/UI designer dedicated to creating intuitive, beautiful, and user-centered designs that solve real-world problems.
-        </p>
-        <div className="flex justify-center gap-4">
+        </motion.p>
+        <motion.div
+          className="flex justify-center gap-4"
+          variants={buttonVariants}
+        >
           <a href="#projects">
             <Button size="lg">
-              View My Work <ArrowDown className="ml-2 h-5 w-5" />
+              View My Work
+              <motion.div
+                animate={{ y: [0, 5, 0] }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  repeatType: "loop",
+                  ease: "easeInOut",
+                }}
+              >
+                <ArrowDown className="ml-2 h-5 w-5" />
+              </motion.div>
             </Button>
           </a>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 };
